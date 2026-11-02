@@ -1,0 +1,268 @@
+{
+  "exportedAt": "2026-11-02T00:00:00.000Z",
+  "workstreams": [
+    {
+      "id": "krusty-krab-drive-thru",
+      "title": "Krusty Krab Drive-Thru",
+      "owners": ["Eugene Krabs", "SpongeBob SquarePants"],
+      "permanent": 3,
+      "contract": 2,
+      "summary": "Adding a drive-thru lane to the Krusty Krab so boat-driving customers can order Krabby Patties without coming inside.",
+      "purpose": "Increase daily patty sales and reduce queues at the counter during the lunchtime rush.",
+      "ratings": {
+        "2026-07": "R",
+        "2026-08": "A",
+        "2026-09": "A",
+        "2026-10": "A",
+        "2026-11": "G"
+      },
+      "updates": {
+        "2026-10": {
+          "progress": "Speaker box installed. Customers still can't understand Squidward's mumbling through it.",
+          "planned": "Replace speaker box and train staff on clear ordering scripts."
+        },
+        "2026-11": {
+          "progress": "New speaker box live. SpongeBob trialled the ordering script and average order time is down to 90 seconds.",
+          "planned": "Open the drive-thru for the full lunchtime shift and measure throughput."
+        }
+      },
+      "objectives": [
+        {
+          "id": "kk-obj-1",
+          "title": "Launch drive-thru lane",
+          "keyResults": [
+            { "text": "Drive-thru window and speaker box installed", "progress": 100 },
+            { "text": "Average order time under 2 minutes", "progress": 85 },
+            { "text": "Serve 200 drive-thru orders per day", "progress": 40 }
+          ]
+        },
+        {
+          "id": "kk-obj-2",
+          "title": "Protect the secret formula",
+          "keyResults": [
+            { "text": "Zero formula theft attempts succeed", "progress": 100 },
+            { "text": "Security camera covers the drive-thru window", "progress": 60 }
+          ]
+        }
+      ],
+      "risks": [
+        {
+          "id": "kk-risk-1",
+          "description": "Plankton may use the drive-thru window as a new route to steal the secret formula.",
+          "mitigation": "Formula stays in the safe; security camera being installed at the window. Krabs reviewing footage daily.",
+          "rag": "A"
+        },
+        {
+          "id": "kk-risk-2",
+          "description": "Issue: Squidward is the only cashier trained on the drive-thru till. Impact: no cover for his breaks.",
+          "mitigation": "SpongeBob being cross-trained. Complete by mid-December.",
+          "rag": "A"
+        }
+      ]
+    },
+    {
+      "id": "chum-bucket-rebrand",
+      "title": "Chum Bucket Customer Acquisition",
+      "owners": ["Sheldon J. Plankton", "Karen"],
+      "permanent": 1,
+      "contract": 0,
+      "summary": "Attempting to attract any customers at all to the Chum Bucket through a rebrand and new menu.",
+      "purpose": "Achieve the Chum Bucket's first sustained revenue and reduce dependence on stealing the Krabby Patty formula.",
+      "ratings": {
+        "2026-06": "A",
+        "2026-07": "A",
+        "2026-08": "R",
+        "2026-09": "R",
+        "2026-10": "A",
+        "2026-11": "R"
+      },
+      "updates": {
+        "2026-10": {
+          "progress": "Karen ran a customer survey. One response, which turned out to be Plankton in disguise.",
+          "planned": "Launch the new 'Chum Deluxe' menu and a grand reopening event."
+        },
+        "2026-11": {
+          "progress": "Grand reopening went ahead with zero attendees. Chum Deluxe pulled after a food safety complaint.",
+          "planned": "Karen to lead a review of the menu strategy. Pause formula-theft side projects to free up capacity."
+        }
+      },
+      "objectives": [
+        {
+          "id": "cb-obj-1",
+          "title": "Win first regular customers",
+          "keyResults": [
+            { "text": "10 repeat customers per week", "progress": 0 },
+            { "text": "Customer satisfaction above 2 stars", "progress": 10 }
+          ]
+        },
+        {
+          "id": "cb-obj-2",
+          "title": "Launch an edible menu",
+          "keyResults": [
+            { "text": "Pass Bikini Bottom food hygiene inspection", "progress": 20 },
+            { "text": "Three menu items that are not chum", "progress": 33 }
+          ]
+        }
+      ],
+      "risks": [
+        {
+          "id": "cb-risk-1",
+          "description": "Issue: product is chum. Impact: nobody wants to eat it.",
+          "mitigation": "Menu review led by Karen. No mitigation agreed with Plankton yet.",
+          "rag": "R"
+        },
+        {
+          "id": "cb-risk-2",
+          "description": "Key person dependency: the whole team is Plankton and Karen.",
+          "mitigation": "Karen backed up to cloud storage weekly.",
+          "rag": "A"
+        },
+        {
+          "id": "cb-risk-3",
+          "description": "Ongoing schemes to steal the formula lead to legal action from the Krusty Krab.",
+          "mitigation": "None. Plankton has said he will 'definitely get it next time'.",
+          "rag": "R"
+        }
+      ]
+    },
+    {
+      "id": "treedome-research",
+      "title": "Treedome Underwater Science Programme",
+      "owners": ["Sandy Cheeks"],
+      "permanent": 1,
+      "contract": 1,
+      "summary": "Sandy's research programme in the Treedome, building inventions that help land creatures live and work under the sea.",
+      "purpose": "Show that land-and-sea collaboration works and publish findings for the scientists back in Texas.",
+      "ratings": {
+        "2026-08": "G",
+        "2026-09": "G",
+        "2026-10": "G",
+        "2026-11": "G"
+      },
+      "updates": {
+        "2026-10": {
+          "progress": "Air helmet v3 prototype passed pressure tests at 20 fathoms.",
+          "planned": "Begin field trials with SpongeBob as volunteer test subject."
+        },
+        "2026-11": {
+          "progress": "Field trials complete. SpongeBob wore the helmet for 6 hours with no issues. Paper submitted to the Texas science committee.",
+          "planned": "Start design work on the karate practice dome extension."
+        }
+      },
+      "objectives": [
+        {
+          "id": "td-obj-1",
+          "title": "Deliver air helmet v3",
+          "keyResults": [
+            { "text": "Pressure rated to 30 fathoms", "progress": 90 },
+            { "text": "6+ hours of continuous wear", "progress": 100 },
+            { "text": "Field trials with 3 volunteers", "progress": 67 }
+          ]
+        },
+        {
+          "id": "td-obj-2",
+          "title": "Publish research",
+          "keyResults": [
+            { "text": "Submit paper to Texas science committee", "progress": 100 },
+            { "text": "Present findings at Bikini Bottom science fair", "progress": 50 }
+          ]
+        }
+      ],
+      "risks": [
+        {
+          "id": "td-risk-1",
+          "description": "Treedome seal failure could flood the lab and destroy research equipment.",
+          "mitigation": "Monthly seal inspections; backup air supply installed. Last inspection passed.",
+          "rag": "G"
+        },
+        {
+          "id": "td-risk-2",
+          "description": "Funding from Texas may be withdrawn if the paper is rejected.",
+          "mitigation": "Early peer review by fellow scientists showed positive feedback.",
+          "rag": "G"
+        }
+      ]
+    },
+    {
+      "id": "jellyfishing-safety",
+      "title": "Jellyfish Fields Safety Improvements",
+      "owners": ["Patrick Star", "SpongeBob SquarePants"],
+      "permanent": 0,
+      "contract": 2,
+      "summary": "Making jellyfishing in Jellyfish Fields safer for residents and less stressful for the jellyfish.",
+      "purpose": "Reduce sting injuries among Bikini Bottom residents and protect the jellyfish population.",
+      "ratings": {
+        "2026-09": "G",
+        "2026-10": "G",
+        "2026-11": "A"
+      },
+      "updates": {
+        "2026-11": {
+          "progress": "Safety leaflet drafted. Patrick lost the only copy, then found it under his rock.",
+          "planned": "Print leaflets and hold a jellyfishing safety workshop at the Krusty Krab."
+        }
+      },
+      "objectives": [
+        {
+          "id": "jf-obj-1",
+          "title": "Reduce jellyfish sting injuries",
+          "keyResults": [
+            { "text": "Sting reports down 50% year on year", "progress": 30 },
+            { "text": "Safety leaflet distributed to every household", "progress": 15 }
+          ]
+        },
+        {
+          "id": "jf-obj-2",
+          "title": "Promote catch-and-release",
+          "keyResults": [
+            { "text": "90% of jellyfish released unharmed", "progress": 75 }
+          ]
+        }
+      ],
+      "risks": [
+        {
+          "id": "jf-risk-1",
+          "description": "Patrick's attention span may delay delivery of the workshop.",
+          "mitigation": "SpongeBob is sharing ownership and sending daily reminders.",
+          "rag": "A"
+        }
+      ]
+    },
+    {
+      "id": "boating-school-modernisation",
+      "title": "Boating School Modernisation",
+      "owners": ["Mrs. Puff"],
+      "permanent": 2,
+      "contract": 0,
+      "summary": "Discovery into new teaching methods and a driving simulator for Mrs. Puff's Boating School.",
+      "purpose": "Raise the boating test pass rate and reduce damage to school boats and to Mrs. Puff.",
+      "ratings": {
+        "2026-11": "A"
+      },
+      "updates": {
+        "2026-11": {
+          "progress": "Discovery started. Interviewed 12 students. SpongeBob failed his 38th driving test during the interview period.",
+          "planned": "Agree requirements for the boating simulator and get quotes from suppliers."
+        }
+      },
+      "objectives": [
+        {
+          "id": "bs-obj-1",
+          "title": "Complete discovery",
+          "keyResults": [
+            { "text": "Interview 20 students and instructors", "progress": 60 },
+            { "text": "Publish options appraisal for driving simulator", "progress": 10 }
+          ]
+        }
+      ],
+      "risks": [
+        {
+          "id": "bs-risk-1",
+          "description": "Issue: repeated crashes during practical lessons. Impact: Mrs. Puff's insurance premiums keep rising.",
+          "mitigation": "Simulator expected to reduce on-road lessons. Mrs. Puff still inflating as a precaution.",
+          "rag": "R"
+        }
+      ]
+    }
+  ]
+}
