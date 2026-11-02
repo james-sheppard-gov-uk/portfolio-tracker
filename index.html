@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Portfolio Tracker – Delivery Workstreams</title>
+<style>
+  :root {
+    --red: #d4351c; --amber: #f47738; --green: #00703c; --grey: #b1b4b6;
+    --text: #0b0c0c; --muted: #505a5f; --border: #b1b4b6; --bg: #f3f2f1;
+    --blue: #1d70b8; --focus: #ffdd00;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Arial, Helvetica, sans-serif; color: var(--text); background: var(--bg); }
+  header { background: var(--text); color: #fff; padding: 12px 24px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 1.4rem; margin: 0; }
+  header .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  main { max-width: 1200px; margin: 0 auto; padding: 16px 24px 48px; }
+  button, .button { font: inherit; font-size: .95rem; padding: 6px 12px; border: 0; border-radius: 0; cursor: pointer; background: var(--green); color: #fff; box-shadow: 0 2px 0 #002d18; }
+  button.secondary, .button.secondary { background: #f3f2f1; color: var(--text); box-shadow: 0 2px 0 #929191; }
+  button.warning { background: var(--red); box-shadow: 0 2px 0 #55150b; }
+  button.link { background: none; box-shadow: none; color: var(--blue); text-decoration: underline; padding: 0 4px; }
+  button:focus, input:focus, select:focus, textarea:focus, summary:focus { outline: 3px solid var(--focus); outline-offset: 0; }
+  label { font-weight: bold; display: block; margin-bottom: 4px; }
+  input, select, textarea { font: inherit; padding: 5px; border: 2px solid var(--text); width: 100%; background: #fff; }
+  header input, header select { width: auto; }
+  header label { display: inline; color: #fff; margin-right: 4px; }
+  textarea { min-height: 60px; resize: vertical; }
+
+  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .stat { background: #fff; padding: 12px; border-left: 6px solid var(--border); }
+  .stat .num { font-size: 1.8rem; font-weight: bold; }
+  .stat .lbl { color: var(--muted); font-size: .9rem; }
+  .stat.R { border-color: var(--red); } .stat.A { border-color: var(--amber); } .stat.G { border-color: var(--green); }
+
+  .filters { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; background: #fff; padding: 12px; margin-bottom: 16px; }
+  @media (max-width: 760px) { .filters { grid-template-columns: 1fr; } }
+
+  .card { background: #fff; margin-bottom: 12px; border-left: 8px solid var(--grey); }
+  .card.R { border-color: var(--red); } .card.A { border-color: var(--amber); } .card.G { border-color: var(--green); }
+  .card-head { display: grid; grid-template-columns: 1fr auto; gap: 12px; padding: 12px 16px; align-items: start; }
+  .card-head h2 { margin: 0 0 4px; font-size: 1.2rem; }
+  .meta { color: var(--muted); font-size: .9rem; display: flex; flex-wrap: wrap; gap: 4px 16px; }
+  .status { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .status select { width: auto; }
+  .card details { border-top: 1px solid var(--border); }
+  .card summary { cursor: pointer; padding: 8px 16px; color: var(--blue); font-weight: bold; }
+  .card .body { padding: 0 16px 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .card .body .full { grid-column: 1 / -1; }
+  @media (max-width: 760px) { .card .body { grid-template-columns: 1fr; } .card-head { grid-template-columns: 1fr; } .status { justify-content: flex-start; } }
+  .card h3 { font-size: 1rem; margin: 8px 0 4px; }
+  .card p { margin: 0; white-space: pre-wrap; }
+
+  .rag { display: inline-block; min-width: 2.2em; text-align: center; padding: 3px 8px; font-weight: bold; color: #fff; background: var(--grey); }
+  .rag.R { background: var(--red); } .rag.A { background: var(--amber); color: var(--text); } .rag.G { background: var(--green); }
+  .rag.none { color: var(--text); }
+  .movement { font-weight: bold; white-space: nowrap; }
+  .movement.up { color: var(--green); } .movement.down { color: var(--red); } .movement.same, .movement.new { color: var(--muted); }
+
+  .progress { background: #dee0e2; height: 14px; position: relative; min-width: 100px; }
+  .progress > span { display: block; height: 100%; background: var(--blue); }
+  .progress-row { display: flex; align-items: center; gap: 8px; }
+  .progress-row .progress { flex: 1; }
+  .progress-row strong { min-width: 3.2em; text-align: right; }
+  .objective { border: 1px solid var(--border); padding: 8px 12px; margin-bottom: 8px; }
+  .objective ul { margin: 6px 0 0; padding-left: 20px; }
+  .obj-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(160px, 40%); gap: 12px; align-items: center; }
+  .kr-list li { display: grid; grid-template-columns: minmax(0, 1fr) minmax(160px, 40%); gap: 12px; align-items: center; padding: 3px 0; }
+  .progress.kr { height: 10px; }
+  .progress.kr > span { background: #5694ca; }
+  .kr-row { display: grid; grid-template-columns: 1fr 110px auto; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .kr-row input[type=number] { width: 100%; }
+  .risk-table { width: 100%; border-collapse: collapse; font-size: .95rem; }
+  .risk-table th, .risk-table td { text-align: left; vertical-align: top; padding: 8px; border-bottom: 1px solid var(--border); white-space: pre-wrap; }
+  .risk-table th { border-bottom: 2px solid var(--text); }
+  .risk-table td.rag-cell { width: 90px; white-space: nowrap; }
+  .risk-edit { border: 1px dashed var(--muted); padding: 10px; margin-bottom: 10px; display: grid; grid-template-columns: 1fr 1fr 130px; gap: 10px; align-items: start; }
+  .risk-edit .field { margin: 0; }
+  .risk-edit textarea { min-height: 90px; }
+  @media (max-width: 640px) { .risk-edit { grid-template-columns: 1fr; } .risk-table thead { display: none; } .risk-table td { display: block; border: 0; padding: 2px 0; } .risk-table tr { display: block; border-bottom: 1px solid var(--border); padding: 6px 0; } }
+  @media (max-width: 640px) { .obj-head, .kr-list li { grid-template-columns: 1fr; gap: 2px; } }
+  .history { display: flex; gap: 4px; flex-wrap: wrap; }
+  .history .cell { text-align: center; font-size: .75rem; color: var(--muted); }
+  .history .rag { display: block; min-width: 3.2em; margin-top: 2px; font-size: .8rem; }
+  .card-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .empty { background: #fff; padding: 24px; text-align: center; color: var(--muted); }
+
+  dialog { border: 0; padding: 0; width: min(900px, 96vw); max-height: 92vh; }
+  dialog::backdrop { background: rgba(0,0,0,.6); }
+  dialog form { padding: 20px 24px; }
+  dialog h2 { margin-top: 0; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 12px; }
+  @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+  .field { margin-bottom: 12px; }
+  fieldset { border: 1px solid var(--border); margin: 0 0 12px; padding: 10px 12px; }
+  legend { font-weight: bold; padding: 0 4px; }
+  .row { display: flex; gap: 8px; align-items: center; margin-bottom: 6px; }
+  .row input[type=month] { width: 170px; } .row select { width: 140px; }
+  .obj-edit { border: 1px dashed var(--muted); padding: 10px; margin-bottom: 10px; }
+  .dialog-actions { display: flex; gap: 8px; justify-content: space-between; margin-top: 16px; }
+  .hint { color: var(--muted); font-size: .85rem; font-weight: normal; }
+  .visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<header>
+  <h1>Portfolio Tracker</h1>
+  <div class="controls">
+    <label for="month">Reporting month</label>
+    <input type="month" id="month">
+    <button id="addBtn" type="button">+ Add workstream</button>
+    <button id="exportBtn" type="button" class="secondary">Export JSON</button>
+    <label for="importFile" class="button secondary" style="margin:0;color:var(--text);font-weight:normal">Import JSON</label>
+    <input type="file" id="importFile" accept="application/json,.json" class="visually-hidden">
+  </div>
+</header>
+
+<main>
+  <section class="summary" id="summary" aria-label="Portfolio summary"></section>
+
+  <section class="filters" aria-label="Filters">
+    <div><label for="search">Search</label><input id="search" type="search" placeholder="Title, owner, summary, objective…"></div>
+    <div><label for="filterRag">Confidence</label>
+      <select id="filterRag"><option value="">All</option><option value="R">Red</option><option value="A">Amber</option><option value="G">Green</option><option value="none">Not rated</option></select></div>
+    <div><label for="filterMove">Movement</label>
+      <select id="filterMove"><option value="">All</option><option value="up">Improved</option><option value="down">Declined</option><option value="same">No change</option><option value="new">New / no comparison</option></select></div>
+    <div><label for="sortBy">Sort by</label>
+      <select id="sortBy"><option value="title">Title</option><option value="rag">Confidence (red first)</option><option value="movement">Movement (declined first)</option><option value="progress">Progress (lowest first)</option><option value="people">Headcount (largest first)</option></select></div>
+  </section>
+
+  <section id="list" aria-live="polite"></section>
+</main>
+
+<dialog id="editDialog" aria-labelledby="dlgTitle">
+  <form id="editForm" method="dialog">
+    <h2 id="dlgTitle">Edit workstream</h2>
+    <div class="grid3">
+      <div class="field"><label for="fTitle">Title</label><input id="fTitle" required></div>
+      <div class="field"><label for="fPerm">Permanent workers</label><input id="fPerm" type="number" min="0" step="1" value="0"></div>
+      <div class="field"><label for="fContract">Contract workers</label><input id="fContract" type="number" min="0" step="1" value="0"></div>
+    </div>
+    <div class="field"><label for="fOwners">Owners <span class="hint">(comma separated, at least one)</span></label><input id="fOwners" required></div>
+    <div class="grid2">
+      <div class="field"><label for="fSummary">Summary</label><textarea id="fSummary"></textarea></div>
+      <div class="field"><label for="fPurpose">Purpose</label><textarea id="fPurpose"></textarea></div>
+    </div>
+
+    <fieldset>
+      <legend id="updLegend">Monthly update</legend>
+      <div class="grid2">
+        <div class="field"><label for="fProgress" id="fProgressLbl">Progress update</label><textarea id="fProgress"></textarea></div>
+        <div class="field"><label for="fPlanned" id="fPlannedLbl">Planned work</label><textarea id="fPlanned"></textarea></div>
+      </div>
+      <p class="hint" style="margin:0">Change the reporting month in the header to edit updates for other months.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Monthly delivery confidence</legend>
+      <div id="ratingsEdit"></div>
+      <button type="button" class="secondary" id="addRating">+ Add month</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Objectives</legend>
+      <div id="objectivesEdit"></div>
+      <button type="button" class="secondary" id="addObjective">+ Add objective</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Risks, issues and impacts</legend>
+      <div id="risksEdit"></div>
+      <button type="button" class="secondary" id="addRisk">+ Add risk / issue</button>
+    </fieldset>
+
+    <div class="dialog-actions">
+      <button type="button" class="warning" id="deleteBtn">Delete workstream</button>
+      <span style="display:flex;gap:8px">
+        <button type="button" class="secondary" id="cancelBtn">Cancel</button>
+        <button type="submit" id="saveBtn">Save</button>
+      </span>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  const STORAGE_KEY = 'portfolioTracker.v1';
+  const RAG_LABEL = { R: 'Red', A: 'Amber', G: 'Green' };
+  const RAG_SCORE = { R: 1, A: 2, G: 3 };
+  const $ = (s, el = document) => el.querySelector(s);
+
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const uid = () => Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  const clampPct = (n) => Math.max(0, Math.min(100, Math.round(Number(n) || 0)));
+
+  const monthKey = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const shiftMonth = (key, delta) => {
+    const [y, m] = key.split('-').map(Number);
+    return monthKey(new Date(y, m - 1 + delta, 1));
+  };
+  const monthLabel = (key) => {
+    const [y, m] = key.split('-').map(Number);
+    return new Date(y, m - 1, 1).toLocaleDateString('en-GB', { month: 'short', year: '2-digit' });
+  };
+
+  // ---------- State ----------
+  let workstreams = load();
+  let currentMonth = monthKey(new Date());
+  let editingId = null;
+
+  function normalise(ws) {
+    return {
+      id: ws.id || uid(),
+      title: String(ws.title || 'Untitled workstream'),
+      owners: (Array.isArray(ws.owners) ? ws.owners : String(ws.owners || '').split(',')).map(s => String(s).trim()).filter(Boolean),
+      permanent: Math.max(0, parseInt(ws.permanent, 10) || 0),
+      contract: Math.max(0, parseInt(ws.contract, 10) || 0),
+      summary: String(ws.summary || ''),
+      purpose: String(ws.purpose || ''),
+      ratings: Object.fromEntries(Object.entries(ws.ratings || {}).filter(([k, v]) => /^\d{4}-\d{2}$/.test(k) && RAG_SCORE[v])),
+      // Keyed by reporting month: progress made that month, and work planned for the following month.
+      updates: Object.fromEntries(Object.entries(ws.updates || {})
+        .filter(([k, v]) => /^\d{4}-\d{2}$/.test(k) && v && typeof v === 'object')
+        .map(([k, v]) => [k, { progress: String(v.progress || ''), planned: String(v.planned || '') }])
+        .filter(([, v]) => v.progress || v.planned)),
+      objectives: (ws.objectives || []).map(o => {
+        // Legacy data stored key results as strings with progress on the objective; carry that progress down.
+        const keyResults = (o.keyResults || []).map(kr => typeof kr === 'string'
+          ? { text: kr, progress: clampPct(o.progress) }
+          : { text: String(kr?.text || ''), progress: clampPct(kr?.progress) })
+          .filter(kr => kr.text.trim());
+        return {
+          id: o.id || uid(),
+          title: String(o.title || ''),
+          keyResults,
+          progress: keyResults.length ? Math.round(keyResults.reduce((a, kr) => a + kr.progress, 0) / keyResults.length) : 0
+        };
+      }),
+      risks: (ws.risks || []).map(r => ({
+        id: r.id || uid(),
+        description: String(r.description || ''),
+        mitigation: String(r.mitigation || ''),
+        rag: RAG_SCORE[r.rag] ? r.rag : 'A'
+      })).filter(r => r.description.trim() || r.mitigation.trim())
+    };
+  }
+
+  function load() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) return JSON.parse(raw).map(normalise);
+    } catch (e) { console.warn('Could not load saved data', e); }
+    return [];
+  }
+  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(workstreams)); }
+
+  // ---------- Derived values ----------
+  function movement(ws, month = currentMonth) {
+    const now = ws.ratings[month];
+    const prev = ws.ratings[shiftMonth(month, -1)];
+    if (!now || !prev) return { key: 'new', icon: '●', text: now ? 'New' : 'Not rated', delta: 0 };
+    const d = RAG_SCORE[now] - RAG_SCORE[prev];
+    if (d > 0) return { key: 'up', icon: '▲', text: 'Improved', delta: d };
+    if (d < 0) return { key: 'down', icon: '▼', text: 'Declined', delta: d };
+    return { key: 'same', icon: '▶', text: 'No change', delta: 0 };
+  }
+  const avgProgress = (ws) => ws.objectives.length ? Math.round(ws.objectives.reduce((a, o) => a + o.progress, 0) / ws.objectives.length) : 0;
+  const ragBadge = (r, extra = '') => r ? `<span class="rag ${r}" ${extra}>${RAG_LABEL[r]}</span>` : `<span class="rag none" ${extra}>—</span>`;
+  const progressBar = (pct, label, cls = '') => `<div class="progress-row"><div class="progress ${cls}" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100" aria-label="${esc(label)}"><span style="width:${pct}%"></span></div><strong>${pct}%</strong></div>`;
+
+  // ---------- Rendering ----------
+  function renderSummary() {
+    const counts = { R: 0, A: 0, G: 0, none: 0, up: 0, down: 0, redRisks: 0, risks: 0 };
+    let perm = 0, con = 0;
+    for (const ws of workstreams) {
+      counts[ws.ratings[currentMonth] || 'none']++;
+      const mv = movement(ws).key;
+      if (mv === 'up' || mv === 'down') counts[mv]++;
+      perm += ws.permanent; con += ws.contract;
+      counts.risks += ws.risks.length;
+      counts.redRisks += ws.risks.filter(r => r.rag === 'R').length;
+    }
+    const stat = (num, lbl, cls = '') => `<div class="stat ${cls}"><div class="num">${num}</div><div class="lbl">${lbl}</div></div>`;
+    $('#summary').innerHTML =
+      stat(workstreams.length, 'Workstreams') +
+      stat(counts.G, 'Green', 'G') + stat(counts.A, 'Amber', 'A') + stat(counts.R, 'Red', 'R') +
+      stat(counts.none, 'Not rated') +
+      stat(`<span class="movement up">▲ ${counts.up}</span> / <span class="movement down">▼ ${counts.down}</span>`, 'Improved / declined') +
+      stat(counts.redRisks, `Red risks / issues (of ${counts.risks})`, counts.redRisks ? 'R' : '') +
+      stat(perm + con, `People (${perm} perm, ${con} contract)`);
+  }
+
+  function filtered() {
+    const q = $('#search').value.trim().toLowerCase();
+    const fr = $('#filterRag').value, fm = $('#filterMove').value, sort = $('#sortBy').value;
+    let list = workstreams.filter(ws => {
+      if (fr && (ws.ratings[currentMonth] || 'none') !== fr) return false;
+      if (fm && movement(ws).key !== fm) return false;
+      if (q) {
+        const u = ws.updates[currentMonth] || {};
+        const hay = [ws.title, ws.summary, ws.purpose, u.progress, u.planned, ...ws.owners, ...ws.objectives.flatMap(o => [o.title, ...o.keyResults.map(kr => kr.text)]), ...ws.risks.flatMap(r => [r.description, r.mitigation])].join(' ').toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    const ragSort = (ws) => RAG_SCORE[ws.ratings[currentMonth]] || 99;
+    const cmp = {
+      title: (a, b) => a.title.localeCompare(b.title),
+      rag: (a, b) => ragSort(a) - ragSort(b) || a.title.localeCompare(b.title),
+      movement: (a, b) => movement(a).delta - movement(b).delta || a.title.localeCompare(b.title),
+      progress: (a, b) => avgProgress(a) - avgProgress(b),
+      people: (a, b) => (b.permanent + b.contract) - (a.permanent + a.contract)
+    }[sort];
+    return list.sort(cmp);
+  }
+
+  function renderHistory(ws) {
+    let html = '<div class="history">';
+    for (let i = 5; i >= 0; i--) {
+      const k = shiftMonth(currentMonth, -i);
+      html += `<div class="cell">${esc(monthLabel(k))}${ragBadge(ws.ratings[k])}</div>`;
+    }
+    return html + '</div>';
+  }
+
+  const openState = new Set();
+  function renderList() {
+    const list = filtered();
+    if (!list.length) {
+      $('#list').innerHTML = `<div class="empty">${workstreams.length ? 'No workstreams match the current filters.' : 'No workstreams yet. Use “+ Add workstream” to create one.'}</div>`;
+      return;
+    }
+    const prevKey = shiftMonth(currentMonth, -1);
+    $('#list').innerHTML = list.map(ws => {
+      const r = ws.ratings[currentMonth];
+      const mv = movement(ws);
+      const pct = avgProgress(ws);
+      const upd = ws.updates[currentMonth] || {};
+      const prevUpd = ws.updates[prevKey] || {};
+      const objectives = ws.objectives.length ? ws.objectives.map(o => `
+        <div class="objective">
+          <div class="obj-head"><strong>${esc(o.title)}</strong>${progressBar(o.progress, `${o.title} overall progress`)}</div>
+          ${o.keyResults.length ? `<ul class="kr-list">${o.keyResults.map(kr => `<li><span>${esc(kr.text)}</span>${progressBar(kr.progress, `${kr.text} progress`, 'kr')}</li>`).join('')}</ul>` : '<p class="hint">No key results</p>'}
+        </div>`).join('') : '<p class="hint">No objectives defined.</p>';
+      const sortedRisks = [...ws.risks].sort((a, b) => RAG_SCORE[a.rag] - RAG_SCORE[b.rag]);
+      const redRisks = ws.risks.filter(x => x.rag === 'R').length;
+      const risks = sortedRisks.length ? `
+        <table class="risk-table">
+          <thead><tr><th scope="col">Risk / Issue / Impact</th><th scope="col">Mitigations / Status</th><th scope="col">RAG</th></tr></thead>
+          <tbody>${sortedRisks.map(x => `<tr><td>${esc(x.description)}</td><td>${esc(x.mitigation) || '<span class="hint">—</span>'}</td><td class="rag-cell">${ragBadge(x.rag)}</td></tr>`).join('')}</tbody>
+        </table>` : '<p class="hint">No risks or issues recorded.</p>';
+      return `
+      <article class="card ${r || ''}" data-id="${ws.id}">
+        <div class="card-head">
+          <div>
+            <h2>${esc(ws.title)}</h2>
+            <div class="meta">
+              <span><strong>Owner${ws.owners.length === 1 ? '' : 's'}:</strong> ${esc(ws.owners.join(', ') || '—')}</span>
+              <span><strong>Permanent:</strong> ${ws.permanent}</span>
+              <span><strong>Contract:</strong> ${ws.contract}</span>
+              <span><strong>Objectives:</strong> ${ws.objectives.length}</span>
+              <span><strong>Risks/issues:</strong> ${ws.risks.length}${redRisks ? ` <span class="movement down">(${redRisks} red)</span>` : ''}</span>
+            </div>
+            <div style="margin-top:8px;max-width:420px">${progressBar(pct, 'Overall objective progress')}</div>
+          </div>
+          <div class="status">
+            <span title="Last month (${esc(monthLabel(prevKey))})">Last: ${ragBadge(ws.ratings[prevKey])}</span>
+            <label class="visually-hidden" for="rag-${ws.id}">Delivery confidence for ${esc(monthLabel(currentMonth))}</label>
+            <select id="rag-${ws.id}" class="rag-select" data-id="${ws.id}" aria-label="Delivery confidence for ${esc(monthLabel(currentMonth))}">
+              <option value="" ${!r ? 'selected' : ''}>Not rated</option>
+              ${['G', 'A', 'R'].map(k => `<option value="${k}" ${r === k ? 'selected' : ''}>${RAG_LABEL[k]}</option>`).join('')}
+            </select>
+            <span class="movement ${mv.key}" title="Movement from ${esc(monthLabel(prevKey))} to ${esc(monthLabel(currentMonth))}">${mv.icon} ${mv.text}</span>
+          </div>
+        </div>
+        <details ${openState.has(ws.id) ? 'open' : ''} data-id="${ws.id}">
+          <summary>Details, objectives, risks and history</summary>
+          <div class="body">
+            <div><h3>Summary</h3><p>${esc(ws.summary) || '<span class="hint">—</span>'}</p></div>
+            <div><h3>Purpose</h3><p>${esc(ws.purpose) || '<span class="hint">—</span>'}</p></div>
+            <div><h3>Progress update – ${esc(monthLabel(currentMonth))}</h3><p>${esc(upd.progress) || '<span class="hint">No update</span>'}</p>
+              ${prevUpd.planned ? `<p class="hint" style="margin-top:6px"><strong>Planned last month:</strong> ${esc(prevUpd.planned)}</p>` : ''}</div>
+            <div><h3>Planned work – ${esc(monthLabel(shiftMonth(currentMonth, 1)))}</h3><p>${esc(upd.planned) || '<span class="hint">No plan</span>'}</p></div>
+            <div class="full"><h3>Delivery confidence – last 6 months</h3>${renderHistory(ws)}</div>
+            <div class="full"><h3>Objectives &amp; key results</h3>${objectives}</div>
+            <div class="full"><h3>Risks, issues &amp; impacts</h3>${risks}</div>
+            <div class="full card-actions"><button type="button" class="secondary edit-btn" data-id="${ws.id}">Edit workstream</button></div>
+          </div>
+        </details>
+      </article>`;
+    }).join('');
+  }
+
+  function render() { renderSummary(); renderList(); }
+
+  // ---------- Edit dialog ----------
+  const dlg = $('#editDialog');
+
+  function ratingRow(month = '', rag = 'G') {
+    const div = document.createElement('div');
+    div.className = 'row rating-row';
+    div.innerHTML = `
+      <input type="month" class="r-month" value="${esc(month)}" aria-label="Month" required>
+      <select class="r-rag" aria-label="Confidence">${['G', 'A', 'R'].map(k => `<option value="${k}" ${rag === k ? 'selected' : ''}>${RAG_LABEL[k]}</option>`).join('')}</select>
+      <button type="button" class="link remove-row">Remove</button>`;
+    return div;
+  }
+
+  function krRow(kr = { text: '', progress: 0 }) {
+    const div = document.createElement('div');
+    div.className = 'kr-row';
+    div.innerHTML = `
+      <input class="kr-text" value="${esc(kr.text)}" aria-label="Key result" placeholder="Key result">
+      <input class="kr-progress" type="number" min="0" max="100" step="1" value="${kr.progress}" aria-label="Key result progress %" title="Progress %">
+      <button type="button" class="link remove-kr">Remove</button>`;
+    return div;
+  }
+
+  function objectiveBlock(o = { title: '', keyResults: [] }) {
+    const div = document.createElement('div');
+    div.className = 'obj-edit';
+    const id = uid();
+    div.innerHTML = `
+      <div class="row" style="align-items:end">
+        <div class="field" style="flex:1;margin:0"><label for="ot-${id}">Objective</label><input id="ot-${id}" class="o-title" value="${esc(o.title)}"></div>
+        <button type="button" class="link remove-obj">Remove objective</button>
+      </div>
+      <div class="field" style="margin-top:8px"><label>Key results <span class="hint">(text and progress %)</span></label>
+        <div class="o-krs"></div>
+        <button type="button" class="secondary add-kr">+ Add key result</button></div>`;
+    const list = $('.o-krs', div);
+    (o.keyResults.length ? o.keyResults : [undefined]).forEach(kr => list.appendChild(krRow(kr)));
+    return div;
+  }
+
+  function riskBlock(x = { description: '', mitigation: '', rag: 'A' }) {
+    const div = document.createElement('div');
+    div.className = 'risk-edit';
+    const id = uid();
+    div.innerHTML = `
+      <div class="field"><label for="rd-${id}">Risk / Issue / Impact</label><textarea id="rd-${id}" class="rk-desc">${esc(x.description)}</textarea></div>
+      <div class="field"><label for="rm-${id}">Mitigations / Status</label><textarea id="rm-${id}" class="rk-mit">${esc(x.mitigation)}</textarea></div>
+      <div class="field"><label for="rr-${id}">RAG</label>
+        <select id="rr-${id}" class="rk-rag">${['G', 'A', 'R'].map(k => `<option value="${k}" ${x.rag === k ? 'selected' : ''}>${RAG_LABEL[k]}</option>`).join('')}</select>
+        <button type="button" class="link remove-risk" style="margin-top:8px">Remove</button></div>`;
+    return div;
+  }
+
+  function openEditor(id) {
+    editingId = id;
+    const ws = id ? workstreams.find(w => w.id === id) : normalise({ ratings: {}, objectives: [] });
+    $('#dlgTitle').textContent = id ? 'Edit workstream' : 'Add workstream';
+    $('#fTitle').value = id ? ws.title : '';
+    $('#fOwners').value = ws.owners.join(', ');
+    $('#fPerm').value = ws.permanent;
+    $('#fContract').value = ws.contract;
+    $('#fSummary').value = ws.summary;
+    $('#fPurpose').value = ws.purpose;
+    const upd = ws.updates[currentMonth] || {};
+    $('#updLegend').textContent = `Monthly update – ${monthLabel(currentMonth)}`;
+    $('#fProgressLbl').textContent = `Progress update (${monthLabel(currentMonth)})`;
+    $('#fPlannedLbl').textContent = `Planned work (${monthLabel(shiftMonth(currentMonth, 1))})`;
+    $('#fProgress').value = upd.progress || '';
+    $('#fPlanned').value = upd.planned || '';
+    const re = $('#ratingsEdit'); re.innerHTML = '';
+    Object.keys(ws.ratings).sort().reverse().forEach(k => re.appendChild(ratingRow(k, ws.ratings[k])));
+    if (!id) re.appendChild(ratingRow(currentMonth, 'G'));
+    const oe = $('#objectivesEdit'); oe.innerHTML = '';
+    ws.objectives.forEach(o => oe.appendChild(objectiveBlock(o)));
+    if (!ws.objectives.length) oe.appendChild(objectiveBlock());
+    const rke = $('#risksEdit'); rke.innerHTML = '';
+    ws.risks.forEach(x => rke.appendChild(riskBlock(x)));
+    $('#deleteBtn').hidden = !id;
+    dlg.showModal();
+    $('#fTitle').focus();
+  }
+
+  function readEditor() {
+    const ratings = {};
+    for (const row of document.querySelectorAll('#ratingsEdit .rating-row')) {
+      const m = $('.r-month', row).value;
+      if (m) ratings[m] = $('.r-rag', row).value;
+    }
+    const objectives = [...document.querySelectorAll('#objectivesEdit .obj-edit')].map(b => ({
+      title: $('.o-title', b).value.trim(),
+      keyResults: [...b.querySelectorAll('.kr-row')].map(r => ({
+        text: $('.kr-text', r).value.trim(),
+        progress: clampPct($('.kr-progress', r).value)
+      })).filter(kr => kr.text)
+    })).filter(o => o.title);
+    const risks = [...document.querySelectorAll('#risksEdit .risk-edit')].map(b => ({
+      description: $('.rk-desc', b).value.trim(),
+      mitigation: $('.rk-mit', b).value.trim(),
+      rag: $('.rk-rag', b).value
+    }));
+    const existing = editingId ? workstreams.find(w => w.id === editingId) : null;
+    const updates = { ...(existing ? existing.updates : {}) };
+    updates[currentMonth] = { progress: $('#fProgress').value.trim(), planned: $('#fPlanned').value.trim() };
+    return normalise({
+      id: editingId || uid(),
+      title: $('#fTitle').value.trim(),
+      owners: $('#fOwners').value,
+      permanent: $('#fPerm').value,
+      contract: $('#fContract').value,
+      summary: $('#fSummary').value.trim(),
+      purpose: $('#fPurpose').value.trim(),
+      ratings, objectives, updates, risks
+    });
+  }
+
+  $('#addRating').addEventListener('click', () => {
+    const used = new Set([...document.querySelectorAll('#ratingsEdit .r-month')].map(i => i.value));
+    let m = currentMonth;
+    while (used.has(m)) m = shiftMonth(m, -1);
+    $('#ratingsEdit').prepend(ratingRow(m, 'G'));
+  });
+  $('#addRisk').addEventListener('click', () => {
+    const b = riskBlock();
+    $('#risksEdit').appendChild(b);
+    $('.rk-desc', b).focus();
+  });
+  $('#addObjective').addEventListener('click', () => {
+    const b = objectiveBlock();
+    $('#objectivesEdit').appendChild(b);
+    $('.o-title', b).focus();
+  });
+  dlg.addEventListener('click', (e) => {
+    if (e.target.classList.contains('remove-row')) e.target.closest('.rating-row').remove();
+    if (e.target.classList.contains('remove-obj')) e.target.closest('.obj-edit').remove();
+    if (e.target.classList.contains('remove-kr')) e.target.closest('.kr-row').remove();
+    if (e.target.classList.contains('remove-risk')) e.target.closest('.risk-edit').remove();
+    if (e.target.classList.contains('add-kr')) {
+      const row = krRow();
+      $('.o-krs', e.target.closest('.obj-edit')).appendChild(row);
+      $('.kr-text', row).focus();
+    }
+  });
+  $('#cancelBtn').addEventListener('click', () => dlg.close());
+  $('#deleteBtn').addEventListener('click', () => {
+    const ws = workstreams.find(w => w.id === editingId);
+    if (ws && confirm(`Delete “${ws.title}”? This cannot be undone.`)) {
+      workstreams = workstreams.filter(w => w.id !== editingId);
+      save(); dlg.close(); render();
+    }
+  });
+  $('#editForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const ws = readEditor();
+    if (!ws.owners.length) { $('#fOwners').setCustomValidity('Enter at least one owner'); $('#fOwners').reportValidity(); return; }
+    const months = [...document.querySelectorAll('#ratingsEdit .r-month')].map(i => i.value).filter(Boolean);
+    if (new Set(months).size !== months.length) { alert('Each month can only have one delivery confidence rating.'); return; }
+    if (editingId) workstreams = workstreams.map(w => w.id === editingId ? ws : w);
+    else workstreams.push(ws);
+    openState.add(ws.id);
+    save(); dlg.close(); render();
+  });
+  $('#fOwners').addEventListener('input', (e) => e.target.setCustomValidity(''));
+
+  // ---------- List interactions ----------
+  $('#list').addEventListener('change', (e) => {
+    if (!e.target.classList.contains('rag-select')) return;
+    const ws = workstreams.find(w => w.id === e.target.dataset.id);
+    if (!ws) return;
+    if (e.target.value) ws.ratings[currentMonth] = e.target.value;
+    else delete ws.ratings[currentMonth];
+    save(); render();
+    document.getElementById(`rag-${ws.id}`)?.focus();
+  });
+  $('#list').addEventListener('click', (e) => {
+    if (e.target.classList.contains('edit-btn')) openEditor(e.target.dataset.id);
+  });
+  $('#list').addEventListener('toggle', (e) => {
+    const id = e.target.dataset?.id;
+    if (!id) return;
+    e.target.open ? openState.add(id) : openState.delete(id);
+  }, true);
+
+  // ---------- Header controls ----------
+  $('#month').value = currentMonth;
+  $('#month').addEventListener('change', (e) => { if (e.target.value) { currentMonth = e.target.value; render(); } });
+  $('#addBtn').addEventListener('click', () => openEditor(null));
+  ['#search', '#filterRag', '#filterMove', '#sortBy'].forEach(s => $(s).addEventListener('input', renderList));
+
+  $('#exportBtn').addEventListener('click', () => {
+    const blob = new Blob([JSON.stringify({ exportedAt: new Date().toISOString(), workstreams }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `portfolio-${currentMonth}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+  $('#importFile').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      const list = Array.isArray(data) ? data : data.workstreams;
+      if (!Array.isArray(list)) throw new Error('No workstreams array found');
+      if (confirm(`Replace current data with ${list.length} workstream(s) from “${file.name}”?`)) {
+        workstreams = list.map(normalise);
+        save(); render();
+      }
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+    e.target.value = '';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
